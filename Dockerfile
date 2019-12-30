@@ -3,9 +3,9 @@ MAINTAINER Joao Vitor R Baptista
 
 ENV PYTHONUNBUFFERED 1
 
-RUN mkdir /Desafio-Coopersystem
-WORKDIR /Desafio-Coopersystem
-COPY . /Desafio-Coopersystem/
+RUN mkdir /jenkins-django-pipeline
+WORKDIR /jenkins-django-pipeline
+COPY . /jenkins-django-pipeline/
 
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt

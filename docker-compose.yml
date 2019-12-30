@@ -2,10 +2,10 @@ version: '3'
 
 services:
 
-  db_extracao:
+  db_postgres:
     restart: always
     image: postgres:11
-    container_name: db_extracao
+    container_name: db_postgres
     expose:
       - 5432
     volumes:
@@ -16,14 +16,14 @@ services:
     restart: always
     build: .
     links:
-      - db_extracao
+      - db_postgres
     depends_on:
-      - db_extracao
+      - db_postgres
     ports:
-      - 8001:8000
+      - 8000:8000
     volumes:
-      - .:/Desafio-Coopersystem/
-    command: /Desafio-Coopersystem/run.sh
+      - .:/jenkins-django-pipeline/
+    command: /jenkins-django-pipeline/run.sh
 
 volumes:
   postgres_data:

@@ -2,35 +2,57 @@ node {
   stage 'Checkout'
   git url: 'https://github.com/helpthx/hello-jenkins'
 
-  stage 'build'
+  stage 'build postgres'
+  checkout scm
+
+  def postgresImage = docker.build('db_postgres')
+
+  stage 'Create role in Postgres'
+
+  postgresImage.inside {
+        sh 'sudo docker exec -it db_postgres psql -U postgres -c "CREATE ROLE db_postgres LOGIN ENCRYPTED PASSWORD 'db_postgres' NOSUPERUSER INHERIT CREATEDB NOCREATEROLE NOREPLICATION;"'
+    }
+
+  stage 'Alter role in Postgres'
+
+  postgresImage.inside {
+        sh 'sudo docker exec -it db_postgres psql -U postgres -c "ALTER ROLE db_postgres VALID UNTIL 'infinity'; ALTER USER db_postgres CREATEDB;"'
+    }
+
+    stage 'Creating postgres database'
+
+  postgresImage.inside {
+        sh 'sudo docker exec -it db_postgres psql -U postgres -c "CREATE DATABASE db_postgres WITH OWNER = db_postgres ENCODING = 'UTF8' TABLESPACE = pg_default LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8' CONNECTION LIMIT = -1 TEMPLATE template0;"'
+    }
+
+  stage 'build app'
   checkout scm
   
-  def customImage = docker.build('api_hello_dev')
+  def customImage = docker.build('api_desafio')
 
-  stage 'Liting'
+  stage 'Style Guide Enforcement'
 
   customImage.inside {
-        sh 'flake8 .'
+        sh 'flake8 --ignore .'
     }
 	
-  stage 'Migrating'
-
-  customImage.inside {
-        sh 'python helloworld_project/manage.py migrate'
-    }
-
   stage 'Make Migrations'
 
   customImage.inside {
-        sh 'python helloworld_project/manage.py makemigrations'
+        sh 'python3 manage.py makemigrations produto'
+        sh 'python3 manage.py makemigrations pedido'
     }
-	
-  stage 'Running'
+
+  stage 'Migrating for database'
 
   customImage.inside {
-        sh 'python helloworld_project/manage.py runserver'
-	sh 'sleep 5'
-	sh 'docker kill api_hello_dev'
+        sh 'python3 manage.py migrate'
     }
-		
+
+  stage 'Unit Testing for each app'
+
+  customImage.inside {
+        sh 'python3 manage.py test produto'
+        sh 'python3 manage.py test pedido'
+    }
 }
