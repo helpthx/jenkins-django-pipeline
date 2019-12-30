@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+
+  db_extracao:
+    restart: always
+    image: postgres:11
+    container_name: db_extracao
+    expose:
+      - 5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
+  api_desafio:
+    container_name: api_desafio
+    restart: always
+    build: .
+    links:
+      - db_extracao
+    depends_on:
+      - db_extracao
+    ports:
+      - 8001:8000
+    volumes:
+      - .:/Desafio-Coopersystem/
+    command: /Desafio-Coopersystem/run.sh
+
+volumes:
+  postgres_data:
+
