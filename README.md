@@ -1,4 +1,4 @@
-# API Desafio Coopersystem
+# API Desafio
 
 [Python](https://www.python.org/) - **3.6.0**
 
