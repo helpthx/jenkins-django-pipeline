@@ -22,7 +22,7 @@ node {
     stage 'Creating postgres database'
 
   postgresImage.inside {
-        sh 'sudo docker exec -it db_postgres psql -U postgres -c "CREATE DATABASE db_postgres WITH OWNER = db_postgres ENCODING = 'UTF8' TABLESPACE = pg_default LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8' CONNECTION LIMIT = -1 TEMPLATE template0;"'
+        sh 'sudo docker exec -it db_postgres psql -U postgres -c "CREATE DATABASE db_postgres WITH OWNER = db_postgres ENCODING = 'UTF8' TABLESPACE = pg_default CONNECTION LIMIT = -1 TEMPLATE template0;"'
     }
 
   stage 'build app'
