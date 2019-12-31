@@ -7,23 +7,19 @@ node {
 
   def postgresImage = docker.build('db_postgres')
 
+    sh 'make up-postgresql'
+
   stage 'Create role in Postgres'
 
-  postgresImage.inside {
-        sh 'psql -U postgres -c "CREATE ROLE db_postgres LOGIN ENCRYPTED PASSWORD 'db_postgres' NOSUPERUSER INHERIT CREATEDB NOCREATEROLE NOREPLICATION;"'
-    }
+  sh 'make create-role'
 
   stage 'Alter role in Postgres'
 
-  postgresImage.inside {
-        sh 'psql -U postgres -c "ALTER ROLE db_postgres VALID UNTIL 'infinity'; ALTER USER db_postgres CREATEDB;"'
-    }
+  sh 'make alter-role'
 
-    stage 'Creating postgres database'
+  stage 'Creating postgres database'
 
-  postgresImage.inside {
-        sh 'psql -U postgres -c "CREATE DATABASE db_postgres WITH OWNER = db_postgres ENCODING = 'UTF8' TABLESPACE = pg_default CONNECTION LIMIT = -1 TEMPLATE template0;"'
-    }
+  sh 'make create-db'
 
   stage 'build app'
   checkout scm
