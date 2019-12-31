@@ -2,6 +2,10 @@ node {
   stage 'Checkout'
   git url: 'https://github.com/helpthx/hello-jenkins'
 
+  environment {
+        PASS = 'db_postgres'
+    }
+
   stage 'build postgres'
   checkout scm
 
@@ -10,7 +14,7 @@ node {
   stage 'Create role in Postgres'
 
    docker.image('db_postgres').inside {
-            sh('psql -U postgres -c "CREATE ROLE db_postgres LOGIN ENCRYPTED PASSWORD 'db_postgres' NOSUPERUSER INHERIT CREATEDB NOCREATEROLE NOREPLICATION;"')
+            sh 'psql -U postgres -c "CREATE ROLE db_postgres LOGIN ENCRYPTED PASSWORD ${env.PASS} NOSUPERUSER INHERIT CREATEDB NOCREATEROLE NOREPLICATION;"'
         }
 
   stage 'Alter role in Postgres'
@@ -22,7 +26,7 @@ node {
     stage 'Creating postgres database'
 
   docker.image('db_postgres').inside {
-        sh'sudo docker exec -it db_postgres psql -U postgres -c "CREATE DATABASE db_postgres WITH OWNER = db_postgres ENCODING = 'UTF8' TABLESPACE = pg_default LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8' CONNECTION LIMIT = -1 TEMPLATE template0;"'
+        sh'sudo docker exec -it db_postgres psql -U postgres -c "CREATE DATABASE db_postgres WITH OWNER = db_postgres ENCODING = 'UTF8' TABLESPACE = pg_default CONNECTION LIMIT = -1 TEMPLATE template0;"'
     }
 
   stage 'build app'
