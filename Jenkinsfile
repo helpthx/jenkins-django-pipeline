@@ -10,19 +10,19 @@ node {
   stage 'Create role in Postgres'
 
   postgresImage.inside {
-        sh 'sudo docker exec -it db_postgres psql -U postgres -c "CREATE ROLE db_postgres LOGIN ENCRYPTED PASSWORD 'db_postgres' NOSUPERUSER INHERIT CREATEDB NOCREATEROLE NOREPLICATION;"'
+        sh 'psql -U postgres -c "CREATE ROLE db_postgres LOGIN ENCRYPTED PASSWORD 'db_postgres' NOSUPERUSER INHERIT CREATEDB NOCREATEROLE NOREPLICATION;"'
     }
 
   stage 'Alter role in Postgres'
 
   postgresImage.inside {
-        sh 'sudo docker exec -it db_postgres psql -U postgres -c "ALTER ROLE db_postgres VALID UNTIL 'infinity'; ALTER USER db_postgres CREATEDB;"'
+        sh 'psql -U postgres -c "ALTER ROLE db_postgres VALID UNTIL 'infinity'; ALTER USER db_postgres CREATEDB;"'
     }
 
     stage 'Creating postgres database'
 
   postgresImage.inside {
-        sh 'sudo docker exec -it db_postgres psql -U postgres -c "CREATE DATABASE db_postgres WITH OWNER = db_postgres ENCODING = 'UTF8' TABLESPACE = pg_default CONNECTION LIMIT = -1 TEMPLATE template0;"'
+        sh 'psql -U postgres -c "CREATE DATABASE db_postgres WITH OWNER = db_postgres ENCODING = 'UTF8' TABLESPACE = pg_default CONNECTION LIMIT = -1 TEMPLATE template0;"'
     }
 
   stage 'build app'
