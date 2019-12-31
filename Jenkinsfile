@@ -7,23 +7,27 @@ node {
 
   def postgresImage = docker.build('db_postgres')
 
-    sh 'make up-postgresql'
-
   stage 'Create role in Postgres'
 
-  sh 'make create-role'
+   docker.image('db_postgres').inside {
+            sh('psql -U postgres -c "CREATE ROLE db_postgres LOGIN ENCRYPTED PASSWORD 'db_postgres' NOSUPERUSER INHERIT CREATEDB NOCREATEROLE NOREPLICATION;"')
+        }
 
   stage 'Alter role in Postgres'
 
-  sh 'make alter-role'
+  docker.image('db_postgres').inside {
+        sh 'sudo docker exec -it db_postgres psql -U postgres -c "ALTER ROLE db_postgres VALID UNTIL 'infinity'; ALTER USER db_postgres CREATEDB;"'
+    }
 
-  stage 'Creating postgres database'
+    stage 'Creating postgres database'
 
-  sh 'make create-db'
+  docker.image('db_postgres').inside {
+        sh'sudo docker exec -it db_postgres psql -U postgres -c "CREATE DATABASE db_postgres WITH OWNER = db_postgres ENCODING = 'UTF8' TABLESPACE = pg_default LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8' CONNECTION LIMIT = -1 TEMPLATE template0;"'
+    }
 
   stage 'build app'
   checkout scm
-  
+
   def customImage = docker.build('api_desafio')
 
   stage 'Style Guide Enforcement'
